@@ -56,11 +56,15 @@ a { color: var(--ink); text-decoration-color: var(--dawn); text-underline-offset
 .btn:hover { background: var(--dawn); border-color: var(--dawn); color: var(--ink); }
 .scene { width: 100%; height: auto; display: block; }
 @media (prefers-reduced-motion: no-preference) {
-  .sun { animation: rise 10s ease-in-out infinite; transform-origin: 200px 190px; }
+  .sun { animation: rise 120s ease-out forwards; transform-origin: 200px 190px; }
+  .sun-in { animation: sunIn 120s ease-out forwards; }
+  .sun-out { animation: sunOut 120s ease-out forwards; }
+  @keyframes sunIn { from { stop-color: #f07a5a; } 50% { stop-color: #f6b46e; } to { stop-color: #f8e3a0; } }
+  @keyframes sunOut { from { stop-color: #b8301e; } 50% { stop-color: #d9702a; } to { stop-color: #e3a92f; } }
   .ripple { animation: drift 10s ease-in-out infinite; }
   .ripple:nth-of-type(2) { animation-delay: -2s; }
   .ripple:nth-of-type(3) { animation-delay: -4s; }
-  @keyframes rise { 0%,100% { transform: translateY(-6px); } 50% { transform: translateY(88px); } }
+  @keyframes rise { from { transform: translateY(78px); } to { transform: translateY(-58px); } }
   @keyframes drift { 0%,100% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
 }
 
@@ -184,8 +188,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
     <svg class="scene" viewBox="0 0 400 320" role="img" aria-label="Soleil levant sur le fleuve">
       <defs>
         <radialGradient id="sunG" cx="50%" cy="45%" r="55%">
-          <stop offset="0%" stop-color="#f6dfae"/>
-          <stop offset="100%" stop-color="#c98a2b"/>
+          <stop class="sun-in" offset="0%" stop-color="#f8e3a0"/>
+          <stop class="sun-out" offset="100%" stop-color="#e3a92f"/>
         </radialGradient>
         <clipPath id="sky"><rect x="0" y="0" width="400" height="200"/></clipPath>
       </defs>
