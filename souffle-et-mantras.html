@@ -1,0 +1,408 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Souffle et mantras"><meta name="apple-mobile-web-app-status-bar-style" content="default"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Souffle et mantras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: un seul écran en colonne : l'espace de respiration en haut, les réglages et la bibliothèque de phrases dessous */
+:root{
+  --bg:#e9eef0; --surface:#f6f8f8; --ink:#1d2b33; --muted:#5b6b73; --line:#cdd7db;
+  --in:#3a8fd4; --out:#9478cc; --accent:#2f6f73;
+  --display:"Newsreader", Georgia, "Times New Roman", serif;
+  --ui:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10181d; --surface:#18232a; --ink:#e3ebee; --muted:#93a4ac; --line:#2a3a43;
+  --in:#87c8f2; --out:#c6b2ee; --accent:#7fc4c4; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10181d; --surface:#18232a; --ink:#e3ebee; --muted:#93a4ac; --line:#2a3a43;
+  --in:#87c8f2; --out:#c6b2ee; --accent:#7fc4c4; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px}
+h1{font-family:var(--display);font-weight:400;font-size:1.7rem;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:.85rem}
+
+/* Scène de respiration */
+.stage{position:relative;min-height:330px;border-radius:22px;background:var(--surface);border:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 22px;overflow:hidden;text-align:center}
+.halo{position:absolute;inset:auto;width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle, color-mix(in srgb,var(--in) 36%,transparent) 0%, transparent 70%);
+  transform:scale(.55);opacity:.8;pointer-events:none}
+.stage.out .halo{background:radial-gradient(circle, color-mix(in srgb,var(--out) 36%,transparent) 0%, transparent 70%)}
+.phase{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--in);font-weight:600;position:relative;min-height:1.2em}
+.stage.out .phase{color:var(--out)}
+.phrase{font-family:var(--display);font-weight:300;font-size:clamp(1.6rem,7vw,2.3rem);line-height:1.25;margin:14px 0 18px;
+  text-wrap:balance;position:relative;max-width:20ch;transition:opacity .6s ease}
+.phrase.fade{opacity:0}
+.bar{position:relative;width:min(240px,80%);height:2px;border-radius:1px;background:var(--line);margin-block:8px}
+.bar i{position:absolute;top:50%;left:0%;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle at 35% 35%, color-mix(in srgb,var(--in) 45%,var(--surface)) 0%, var(--in) 70%);
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--in) 14%,transparent), 0 0 18px color-mix(in srgb,var(--in) 40%,transparent);
+  transition:background .6s ease, box-shadow .6s ease}
+.stage.out .bar i{background:radial-gradient(circle at 35% 35%, color-mix(in srgb,var(--out) 45%,var(--surface)) 0%, var(--out) 70%);
+  box-shadow:0 0 0 5px color-mix(in srgb,var(--out) 14%,transparent), 0 0 18px color-mix(in srgb,var(--out) 40%,transparent)}
+.meta{margin-top:14px;font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;position:relative}
+
+.controls{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.primary{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600;flex:1}
+
+section h2{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted)}
+input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+.form{display:flex;flex-direction:column;gap:10px}
+.form .row{display:flex;gap:10px}
+.form .row button{white-space:nowrap}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-direction:column;gap:8px}
+li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+li.sel{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+li .txt{flex:1;min-width:0;cursor:pointer}
+li .txt div{overflow-wrap:anywhere;font-size:.93rem}
+li .del{border:none;background:none;color:var(--muted);padding:6px 8px;font-size:.85rem}
+.ex{font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:0 5px;margin-left:6px}
+.note{font-size:.8rem;color:var(--muted)}
+.toggles{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px}
+.check{flex-direction:row;align-items:center;gap:8px;font-size:.9rem;color:var(--ink)}
+.check input{width:20px;height:20px;accent-color:var(--accent);padding:0}
+.pick{flex-basis:100%;flex-wrap:wrap}
+.pick select{width:auto;flex:1;min-width:150px}
+.rec{margin-top:14px;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:12px}
+.rec h3{margin:0;font-size:.95rem;font-weight:600}
+.rec .note{margin:0}
+.recrows{display:flex;flex-direction:column;gap:14px}
+.recrow{display:flex;flex-direction:column;gap:8px}
+.rechead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:.93rem}
+.recstate{font-size:.8rem;color:var(--muted)}
+.recbtns{display:flex;flex-wrap:wrap;gap:8px}
+.recbtns button{padding:7px 12px;font-size:.85rem;background:var(--bg)}
+.recbtns button.del{background:none}
+.recbtns button.live{background:var(--out);border-color:var(--out);color:var(--bg);font-weight:600}
+button:disabled{opacity:.45;cursor:default}
+@media (prefers-reduced-motion: reduce){.phrase{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Souffle et mantras</h1>
+    <span class="sub">Respiration cohérente et mantras</span>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="halo" id="halo"></div>
+    <div class="phase" id="phase">Prêt</div>
+    <div class="phrase" id="phrase">Choisissez vos phrases, puis lancez la séance.</div>
+    <div class="meta" id="meta">5 min · 6 respirations par minute</div>
+  </div>
+
+  <div class="controls">
+    <button class="primary" id="start">Commencer</button>
+    <button id="stop" hidden>Arrêter</button>
+  </div>
+
+  <section>
+    <h2>Rythme</h2>
+    <div class="grid">
+      <label for="tin">Inspiration<select id="tin"><option value="3">3 s</option><option value="4">4 s</option><option value="5" selected>5 s</option><option value="6">6 s</option></select></label>
+      <label for="tout">Expiration<select id="tout"><option value="3">3 s</option><option value="4">4 s</option><option value="5" selected>5 s</option><option value="6">6 s</option></select></label>
+      <label for="dur">Durée<select id="dur"><option value="3">3 min</option><option value="5" selected>5 min</option><option value="6">6 min</option><option value="7">7 min</option><option value="8">8 min</option><option value="9">9 min</option><option value="10">10 min</option><option value="15">15 min</option></select></label>
+    </div>
+    <div class="toggles">
+      <label class="check" for="snd"><input id="snd" type="checkbox" checked> Son à chaque phase</label>
+      <label class="check" for="vib"><input id="vib" type="checkbox"> Vibration</label>
+      <label class="check pick" for="sound">Sélectionner le son<select id="sound"><option value="gong">Gong léger</option><option value="koshi">Carillon Koshi</option><option value="handpan">Handpan</option></select></label>
+    </div>
+    <p class="note" id="vibnote" hidden>La vibration n'est pas offerte par Safari sur iPhone. Le son doux reste disponible.</p>
+  </section>
+
+  <section>
+    <h2>Mes phrases</h2>
+    <div class="form">
+      <label for="pin"><span><span class="dot" style="background:var(--in)"></span>Phrase pour l'inspiration</span>
+        <input id="pin" maxlength="120" placeholder="Ex. : J'accueille le calme"></label>
+      <label for="pout"><span><span class="dot" style="background:var(--out)"></span>Phrase pour l'expiration</span>
+        <input id="pout" maxlength="120" placeholder="Ex. : Je relâche les tensions"></label>
+      <div class="row"><button id="add" class="primary">Enregistrer la paire</button></div>
+    </div>
+    <ul id="list"></ul>
+    <div class="rec" id="recbox">
+      <h3>Ma voix pour la paire choisie</h3>
+      <div id="recrows" class="recrows"></div>
+      <p class="note" id="recnote">Enregistrez-vous en train de dire chaque phrase. Pendant la séance, votre voix accompagne la première respiration, puis une respiration complète à chaque minute.</p>
+    </div>
+    <p class="note">Touchez une paire pour l'utiliser pendant la séance. Vos phrases restent enregistrées dans ce navigateur, sur cet appareil.</p>
+  </section>
+</div>
+
+<script>
+const KEY='souffle-en-mots-v1';
+const examples=[
+  {id:'ex1',in:"J'inspire le calme",out:"J'expire les tensions",ex:true},
+  {id:'ex2',in:"Je suis ici",out:"Je laisse aller",ex:true}
+];
+let state={pairs:examples,sel:'ex1',tin:5,tout:5,dur:5,snd:true,vib:false,sound:'gong'};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.pairs))state=Object.assign(state,s);}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+const $=id=>document.getElementById(id);
+['tin','tout'].forEach(k=>{if(![3,4,5,6].includes(state[k]))state[k]=5;});
+if(![3,5,6,7,8,9,10,15].includes(state.dur))state.dur=5;
+$('tin').value=state.tin;$('tout').value=state.tout;$('dur').value=state.dur;
+$('snd').checked=state.snd;$('vib').checked=state.vib;
+if(!['gong','koshi','handpan'].includes(state.sound))state.sound='gong';
+$('sound').value=state.sound;
+const canVib=typeof navigator.vibrate==='function';
+$('snd').onchange=()=>{state.snd=$('snd').checked;save();};
+$('vib').onchange=()=>{state.vib=$('vib').checked;save();$('vibnote').hidden=!(state.vib&&!canVib);if(state.vib&&canVib)try{navigator.vibrate(60);}catch(e){}};
+$('vibnote').hidden=!(state.vib&&!canVib);
+
+// Ma voix : enregistrements de l'utilisateur, gardés sur l'appareil (IndexedDB)
+let db=null;
+const dbReady=new Promise(res=>{try{const r=indexedDB.open('souffle-voix',1);r.onupgradeneeded=()=>r.result.createObjectStore('rec');
+  r.onsuccess=()=>{db=r.result;res();};r.onerror=()=>res();}catch(e){res();}});
+function dbOp(mode,fn){return dbReady.then(()=>new Promise(res=>{if(!db)return res(null);
+  try{const t=db.transaction('rec',mode),q=fn(t.objectStore('rec'));
+    if(mode==='readonly'){q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null);}else{t.oncomplete=()=>res(true);t.onerror=()=>res(false);}}catch(e){res(null);}}));}
+const dbGet=k=>dbOp('readonly',s=>s.get(k)),dbPut=(k,v)=>dbOp('readwrite',s=>s.put(v,k)),dbDel=k=>dbOp('readwrite',s=>s.delete(k));
+
+const voices={in:new Audio(),out:new Audio()},blobs={in:null,out:null},urls={in:null,out:null};
+Object.values(voices).forEach(a=>{a.preload='auto';a.setAttribute('playsinline','');});
+function setRec(ph,b){
+  blobs[ph]=b;if(urls[ph])URL.revokeObjectURL(urls[ph]);urls[ph]=b?URL.createObjectURL(b):null;
+  if(urls[ph]){voices[ph].src=urls[ph];voices[ph].load();}else voices[ph].removeAttribute('src');
+}
+async function loadRecs(){
+  const p=current();
+  for(const ph of ['in','out'])setRec(ph,p?await dbGet(p.id+'-'+ph):null);
+  renderRec();
+}
+function playVoice(ph){if(!blobs[ph])return;const a=voices[ph];try{a.muted=false;a.currentTime=0;const q=a.play();if(q)q.catch(()=>{});}catch(e){}}
+function recMsg(t){$('recnote').textContent=t;}
+
+let recording=null,mr=null,recTimer=0;
+async function toggleRec(ph){
+  if(recording===ph){try{mr.stop();}catch(e){}return;}
+  const p=current();if(!p||recording)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==='undefined'){
+    recMsg("L'enregistrement n'est pas offert ici. Utilisez « Importer », ou la version installée sur votre iPhone.");return;}
+  let stream;
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:true});}
+  catch(e){recMsg("Le micro n'est pas accessible. Autorisez le micro pour Safari dans les Réglages, ou utilisez « Importer ».");return;}
+  const type=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(t=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(t));
+  const chunks=[],secs=state[ph==='in'?'tin':'tout'];
+  try{mr=new MediaRecorder(stream,type?{mimeType:type}:undefined);}catch(e){mr=new MediaRecorder(stream);}
+  mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+  mr.onstop=async()=>{
+    clearTimeout(recTimer);stream.getTracks().forEach(t=>t.stop());recording=null;
+    const b=new Blob(chunks,{type:mr.mimeType||type||'audio/mp4'});
+    if(b.size){await dbPut(p.id+'-'+ph,b);if(current()&&current().id===p.id)setRec(ph,b);recMsg('Enregistrement gardé. Touchez « Écouter » pour vérifier.');}
+    renderRec();
+  };
+  mr.start();recording=ph;renderRec();
+  recMsg(`Parle maintenant. L'enregistrement s'arrête seul après ${secs} secondes.`);
+  recTimer=setTimeout(()=>{try{mr.stop();}catch(e){}},secs*1000);
+}
+function canPlay(f){return new Promise(res=>{const u=URL.createObjectURL(f),a=new Audio();let d=false;
+  const done=v=>{if(d)return;d=true;URL.revokeObjectURL(u);res(v);};
+  a.preload='metadata';a.onloadedmetadata=()=>done(true);a.onerror=()=>done(false);setTimeout(()=>done(true),4000);a.src=u;});}
+function mkBtn(label,fn,cls){const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=fn;if(cls)b.className=cls;return b;}
+function renderRec(){
+  const box=$('recrows'),p=current();box.innerHTML='';$('recbox').hidden=!p;if(!p)return;
+  [['in','Inspiration'],['out','Expiration']].forEach(([ph,lab])=>{
+    const row=document.createElement('div');row.className='recrow';
+    const head=document.createElement('div');head.className='rechead';
+    head.innerHTML=`<span><span class="dot" style="background:var(--${ph})"></span>${lab}</span>`;
+    const st=document.createElement('span');st.className='recstate';st.textContent=recording===ph?'Enregistrement…':(blobs[ph]?'Ma voix enregistrée':'Aucun enregistrement');
+    head.append(st);
+    const btns=document.createElement('div');btns.className='recbtns';
+    const r=mkBtn(recording===ph?'Arrêter':(blobs[ph]?'Réenregistrer':'Enregistrer'),()=>toggleRec(ph),recording===ph?'live':'');
+    if(recording&&recording!==ph)r.disabled=true;btns.append(r);
+    if(blobs[ph]&&recording!==ph){
+      btns.append(mkBtn('Écouter',()=>{audioOn();playVoice(ph);}));
+      btns.append(mkBtn('Effacer',async()=>{await dbDel(p.id+'-'+ph);setRec(ph,null);recMsg('Enregistrement effacé.');renderRec();},'del'));
+    }
+    const fi=document.createElement('input');fi.type='file';fi.accept='audio/*,.m4a,.mp3,.wav,.aac,.caf,.mp4,.qta';fi.hidden=true;fi.id='file-'+ph;
+    fi.onchange=async()=>{const f=fi.files[0];fi.value='';if(!f)return;
+      recMsg('Vérification du fichier…');
+      if(!(await canPlay(f))){recMsg(`Le fichier « ${f.name} » n'est pas lisible par Safari. Dans Dictaphone, désactivez l'enregistrement sans perte (format compressé), réenregistrez, puis réessayez.`);return;}
+      await dbPut(p.id+'-'+ph,f);setRec(ph,f);recMsg(`« ${f.name} » importé. Touchez « Écouter » pour vérifier.`);renderRec();};
+    if(!recording)btns.append(mkBtn('Importer',()=>fi.click()),fi);
+    row.append(head,btns);box.append(row);
+  });
+}
+
+// Sons fabriqués en WAV et joués par des éléments audio, plus fiables sur iPhone
+const SR=22050;
+function toWav(f,peak){
+  let m=0;for(let i=0;i<f.length;i++)m=Math.max(m,Math.abs(f[i]));const g=m?peak/m:0;
+  const n=f.length,buf=new ArrayBuffer(44+n*2),v=new DataView(buf);
+  const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+  w(0,'RIFF');v.setUint32(4,36+n*2,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,SR,true);v.setUint32(28,SR*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n*2,true);
+  for(let i=0;i<n;i++)v.setInt16(44+i*2,Math.max(-1,Math.min(1,f[i]*g))*32767,true);
+  const bytes=new Uint8Array(buf);let bin='';
+  for(let i=0;i<bytes.length;i+=8192)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192));
+  return 'data:audio/wav;base64,'+btoa(bin);
+}
+function edges(f,a,b){const na=Math.floor(SR*a),nb=Math.floor(SR*b),n=f.length;
+  for(let i=0;i<na&&i<n;i++)f[i]*=i/na;for(let i=0;i<nb&&i<n;i++)f[n-1-i]*=i/nb;return f;}
+// Gong léger : partiels inharmoniques qui s'éteignent lentement, avec un léger battement
+function gong(base){
+  const n=Math.floor(SR*4.5),f=new Float32Array(n);
+  const parts=[[1,1,.55],[1.004,.5,.6],[2.71,.42,1.1],[2.725,.2,1.2],[5.15,.18,2.2],[8.2,.07,3.4]];
+  for(let i=0;i<n;i++){const t=i/SR;let s=0;for(const [r,a,d] of parts)s+=a*Math.sin(2*Math.PI*base*r*t)*Math.exp(-d*t);f[i]=s*Math.min(1,t/.012);}
+  return edges(f,0,.4);
+}
+// Carillon Koshi : quelques tiges cristallines qui tintent l'une après l'autre
+function koshi(notes){
+  const n=Math.floor(SR*4.2),f=new Float32Array(n);
+  for(const [hz,t0,amp] of notes){const s0=Math.floor(t0*SR);
+    for(let i=s0;i<n;i++){const t=(i-s0)/SR,e=Math.min(1,t/.002);
+      f[i]+=amp*e*(Math.sin(2*Math.PI*hz*t)*Math.exp(-1.5*t)+.3*Math.sin(2*Math.PI*hz*2.76*t)*Math.exp(-3.5*t)+.1*Math.sin(2*Math.PI*hz*5.4*t)*Math.exp(-7*t));}}
+  return edges(f,0,.4);
+}
+// Handpan : une note ronde avec son octave et sa quinte, attaque douce
+function handpan(hz){
+  const n=Math.floor(SR*4.5),f=new Float32Array(n);
+  for(let i=0;i<n;i++){const t=i/SR,atk=1-Math.exp(-t/.006);
+    f[i]=atk*(Math.sin(2*Math.PI*hz*t)*Math.exp(-.9*t)+.45*Math.sin(2*Math.PI*hz*2*t)*Math.exp(-1.5*t)+.2*Math.sin(2*Math.PI*hz*3.01*t)*Math.exp(-2.6*t)
+      +.08*Math.sin(2*Math.PI*hz*.5*t)*Math.exp(-6*t));}
+  return edges(f,0,.4);
+}
+// Vague : elle monte pendant l'inspiration et se retire pendant l'expiration, sur toute la durée de la phase
+function vague(sec,rising){
+  const n=Math.floor(SR*sec),f=new Float32Array(n);let l1=0,l2=0,seed=rising?7:13;
+  const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647*2-1;};
+  for(let i=0;i<n;i++){const x=i/n,s=.5-.5*Math.cos(Math.PI*x),a=rising?.12+.88*s:1-.92*s;
+    const fc=rising?250+1500*s*s:1750-1500*s,al=1-Math.exp(-2*Math.PI*fc/SR);
+    l1+=al*(rnd()-l1);l2+=al*(l1-l2);
+    const foam=rising?0:.25*Math.exp(-x*6)*rnd();
+    f[i]=a*l2+foam*a*.4;}
+  return edges(f,.03,.03);
+}
+const kinds={
+  gong:{in:()=>gong(220),out:()=>gong(185),peak:.75},
+  koshi:{in:()=>koshi([[587,0,1],[740,.2,.8],[880,.45,.7],[1109,.75,.55]]),out:()=>koshi([[988,0,.7],[784,.25,.8],[659,.55,.8],[494,.9,.8]]),peak:.65},
+  handpan:{in:()=>handpan(220),out:()=>handpan(146.83),peak:.85}
+};
+const sounds={in:new Audio(),out:new Audio()},cache={};
+Object.values(sounds).forEach(a=>{a.preload='auto';a.setAttribute('playsinline','');});
+function buildSounds(){
+  const k=kinds[state.sound]?state.sound:'gong';
+  ['in','out'].forEach(p=>{
+    const key=k+p+(k==='vague'?state[p==='in'?'tin':'tout']:'');
+    if(!cache[key])cache[key]=toWav(kinds[k][p](),kinds[k].peak);
+    if(sounds[p]._key!==key){sounds[p]._key=key;sounds[p].src=cache[key];sounds[p].load();}
+  });
+}
+function audioOn(){
+  try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(e){}
+  buildSounds();
+  [...Object.values(sounds),...Object.values(voices).filter(a=>a.src)].forEach(a=>{try{a.muted=true;const p=a.play();
+    if(p)p.then(()=>{if(a.muted){a.pause();a.currentTime=0;a.muted=false;}}).catch(()=>{a.muted=false;});}catch(e){}});
+}
+function playSound(isIn){const a=sounds[isIn?'in':'out'];try{a.muted=false;a.currentTime=0;const p=a.play();if(p)p.catch(()=>{});}catch(e){}}
+function chime(isIn){
+  if(state.snd)playSound(isIn);
+  if(state.vib&&canVib){try{navigator.vibrate(isIn?[40]:[25,80,25]);}catch(e){}}
+}
+
+function render(){
+  const ul=$('list');ul.innerHTML='';
+  if(!state.pairs.length){ul.innerHTML='<li><div class="txt"><div class="note">Aucune phrase enregistrée. Ajoutez votre première paire ci-dessus.</div></div></li>';}
+  state.pairs.forEach(p=>{
+    const li=document.createElement('li');if(p.id===state.sel)li.classList.add('sel');
+    const t=document.createElement('div');t.className='txt';t.tabIndex=0;t.setAttribute('role','button');
+    t.innerHTML=`<div><span class="dot" style="background:var(--in)"></span></div><div><span class="dot" style="background:var(--out)"></span></div>`;
+    t.children[0].append(p.in);t.children[1].append(p.out);
+    if(p.ex){const s=document.createElement('span');s.className='ex';s.textContent='exemple';t.children[0].append(s);}
+    const pick=()=>{state.sel=p.id;save();render();if(!running)preview();};
+    t.onclick=pick;t.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}};
+    const d=document.createElement('button');d.className='del';d.textContent='Retirer';d.setAttribute('aria-label','Retirer cette paire');
+    d.onclick=()=>{dbDel(p.id+'-in');dbDel(p.id+'-out');state.pairs=state.pairs.filter(x=>x.id!==p.id);if(state.sel===p.id)state.sel=state.pairs[0]?.id||null;save();render();if(!running)preview();};
+    li.append(t,d);ul.append(li);
+  });
+  if(!recording)loadRecs();
+}
+function current(){return state.pairs.find(p=>p.id===state.sel)||state.pairs[0];}
+function preview(){
+  const p=current();
+  $('phrase').textContent=p?`« ${p.in} »`:'Ajoutez une paire de phrases pour commencer.';
+  const cyc=state.tin+state.tout;
+  $('meta').textContent=`${state.dur} min · ${(60/cyc).toFixed(1).replace('.0','').replace('.',',')} respirations par minute`;
+}
+
+$('add').onclick=()=>{
+  const a=$('pin').value.trim(),b=$('pout').value.trim();
+  if(!a||!b){$('meta').textContent='Écrivez une phrase pour l’inspiration et une pour l’expiration.';return;}
+  const p={id:'p'+Date.now(),in:a,out:b};
+  state.pairs=state.pairs.filter(x=>!x.ex);state.pairs.unshift(p);state.sel=p.id;
+  $('pin').value='';$('pout').value='';save();render();if(!running)preview();
+};
+['tin','tout','dur'].forEach(k=>$(k).onchange=()=>{
+  let v=parseFloat($(k).value);if(isNaN(v))v=5;
+  if(k!=='dur')v=Math.min(15,Math.max(2,v));
+  state[k]=v;$(k).value=v;save();if(!running)preview();buildSounds();
+});
+
+// Séance
+let running=false,raf=0,t0=0,lastPhase=null,wake=null;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+async function lock(){try{wake=await navigator.wakeLock?.request('screen');}catch(e){}}
+function start(){
+  const p=current();if(!p){preview();return;}
+  audioOn();
+  running=true;t0=performance.now();lastPhase=null;
+  $('start').hidden=true;$('stop').hidden=false;lock();loop();
+}
+function stop(done){
+  running=false;cancelAnimationFrame(raf);try{voices.in.pause();voices.out.pause();}catch(e){}try{wake&&wake.release();}catch(e){}wake=null;
+  $('start').hidden=false;$('stop').hidden=true;$('stage').classList.remove('out');
+  $('phase').textContent=done?'Terminé':'Prêt';
+  $('halo').style.transform='scale(.55)';
+  if(done){$('phrase').textContent='Bien joué. Prends un instant avant de reprendre.';}else preview();
+  $('start').textContent=done?'Recommencer':'Commencer';
+}
+function setPhrase(txt){
+  const el=$('phrase');
+  if(reduce){el.textContent=txt;return;}
+  el.classList.add('fade');setTimeout(()=>{el.textContent=txt;el.classList.remove('fade');},300);
+}
+function loop(){
+  const p=current();const tin=state.tin*1000,tout=state.tout*1000,cyc=tin+tout,total=state.dur*60000;
+  const el=performance.now()-t0;
+  if(el>=total){stop(true);return;}
+  const inC=el%cyc,isIn=inC<tin,k=isIn?inC/tin:(inC-tin)/tout;
+  const ph=isIn?'in':'out';
+  if(ph!==lastPhase){lastPhase=ph;$('stage').classList.toggle('out',!isIn);
+    $('phase').textContent=isIn?'Inspirez':'Expirez';setPhrase(isIn?p.in:p.out);chime(isIn);
+    // Ma voix : au premier cycle, puis au premier cycle qui commence après chaque minute
+    const ci=Math.floor(el/cyc),cs=ci*cyc;
+    if(ci===0||Math.floor(cs/60000)!==Math.floor((cs-cyc)/60000))playVoice(isIn?'in':'out');}
+  const ease=.5-Math.cos(Math.PI*k)/2;
+  if(!reduce)$('halo').style.transform=`scale(${.55+.6*(isIn?ease:1-ease)})`;
+  const left=Math.ceil((total-el)/1000);
+  $('meta').textContent=`${Math.floor(left/60)}:${String(left%60).padStart(2,'0')} restantes`;
+  raf=requestAnimationFrame(loop);
+}
+let pvTimer=0;
+$('sound').onchange=()=>{
+  state.sound=$('sound').value;save();clearTimeout(pvTimer);
+  audioOn();playSound(true);
+  if(!running)pvTimer=setTimeout(()=>playSound(false),2000);
+};
+buildSounds();
+$('start').addEventListener('click',()=>clearTimeout(pvTimer));
+$('start').onclick=start;$('stop').onclick=()=>stop(false);
+document.addEventListener('visibilitychange',()=>{if(running&&document.visibilityState==='visible')lock();});
+
+render();preview();
+</script>
+
+</body></html>
