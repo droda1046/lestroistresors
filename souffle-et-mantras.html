@@ -22,6 +22,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
 .wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
 header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px}
+.back{display:inline-block;justify-self:start;width:fit-content;margin:0 0 14px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;font:600 .95rem var(--ui);color:var(--ink);text-decoration:none}.back:hover{border-color:var(--accent)}
 h1{font-family:var(--display);font-weight:400;font-size:1.7rem;margin:0;letter-spacing:-.01em}
 .sub{color:var(--muted);font-size:.85rem}
 
@@ -89,6 +90,7 @@ button:disabled{opacity:.45;cursor:default}
 </style>
 
 <div class="wrap">
+  <a class="back" href="index.html">← Les Trois Trésors</a>
   <header>
     <h1>Souffle et mantras</h1>
     <span class="sub">Respiration cohérente et mantras</span>
